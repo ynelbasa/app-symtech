@@ -43,3 +43,20 @@ Models should conform to the following formats:
     "Amount": -12.3
 }
 ```
+
+
+## Details of change
+- Move database operations to AccountRepository and TransactionRepository
+- Use accountId to determine correct operation and clean up isNew variable from Account.cs
+- Remove duplicate database connections on AccountRepository.GetAll operation and clean up Account class for unused members
+- Update queries vulnerable to SQL injection and use SQL parameters
+- Add exception handling and return correct HttpStatus for AccountController.Get
+- Add FluentValidation on AccountController.Add and AccountController.Update
+
+## Future improvements
+- Apply exception handling to all API methods
+- Add more data validation for Account and Transaction fields and apply to each request automatically using attribute
+- Make API calls asyncronous
+- Add API documentation (Swagger, eg.)
+- Make use of IOC container to remove class dependency and inject dependecies to constructor (between repositories and controller)
+- Write automated tests (unit and integration)
