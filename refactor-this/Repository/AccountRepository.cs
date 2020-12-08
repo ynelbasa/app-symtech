@@ -13,10 +13,12 @@ namespace refactor_this.Repository
         {
             using (var connection = Helpers.NewConnection())
             {
-                SqlCommand command = new SqlCommand($"select * from Accounts where Id = '{id}'", connection);
-                connection.Open();
+                SqlCommand command = new SqlCommand($"select * from Accounts where Id = @id", connection);
+                command.Parameters.Add(new SqlParameter() { ParameterName = "@id", Value = id });
 
+                connection.Open();
                 var reader = command.ExecuteReader();
+                
                 if (!reader.Read())
                     throw new ArgumentException();
 
@@ -65,9 +67,19 @@ namespace refactor_this.Repository
             {
                 SqlCommand command;
                 if (id.HasValue)
-                    command = new SqlCommand($"update Accounts set Name = '{account.Name}' where Id = '{account.Id}'", connection);
-                else
-                    command = new SqlCommand($"insert into Accounts (Id, Name, Number, Amount) values ('{Guid.NewGuid()}', '{account.Name}', {account.Number}, 0)", connection);
+                {
+                    command = new SqlCommand($"update Accounts set Name = @name where Id = @id", connection);
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@name", Value = account.Name });
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@id", Value = id });
+                }
+                else 
+                {
+                    command = new SqlCommand($"insert into Accounts (Id, Name, Number, Amount) values (@id, @name, @number, @amount)", connection);
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@id", Value = Guid.NewGuid() });
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@name", Value = account.Name });
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@number", Value = account.Number });
+                    command.Parameters.Add(new SqlParameter() { ParameterName = "@amount", Value = 0 });
+                }
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -78,7 +90,8 @@ namespace refactor_this.Repository
         {
             using (var connection = Helpers.NewConnection())
             {
-                SqlCommand command = new SqlCommand($"delete from Accounts where Id = '{id}'", connection);
+                SqlCommand command = new SqlCommand($"delete from Accounts where Id = @id", connection);
+                command.Parameters.Add(new SqlParameter() { ParameterName = "@id", Value = id });
                 connection.Open();
                 command.ExecuteNonQuery();
             }
