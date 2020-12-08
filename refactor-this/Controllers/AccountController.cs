@@ -1,5 +1,6 @@
 ﻿using refactor_this.Models;
 using refactor_this.Repository;
+using refactor_this.Validation;
 using System;
 using System.Web.Http;
 
@@ -33,6 +34,12 @@ namespace refactor_this.Controllers
         [HttpPost, Route("api/Accounts")]
         public IHttpActionResult Add(Account account)
         {
+            var accountValidator = new AccountValidator();
+            var results = accountValidator.Validate(account);
+           
+            if(!results.IsValid)
+                return BadRequest();
+
             _accountRepository.Save(account);
             return Ok();
         }
@@ -40,6 +47,12 @@ namespace refactor_this.Controllers
         [HttpPut, Route("api/Accounts/{id}")]
         public IHttpActionResult Update(Guid id, Account account)
         {
+            var accountValidator = new AccountValidator();
+            var results = accountValidator.Validate(account);
+
+            if (!results.IsValid)
+                return BadRequest();
+
             _accountRepository.Save(account, id);
             return Ok();
         }
