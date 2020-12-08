@@ -1,84 +1,46 @@
 ﻿using refactor_this.Models;
+using refactor_this.Repository;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Net.Http;
-using System.Web;
 using System.Web.Http;
 
 namespace refactor_this.Controllers
 {
     public class AccountController : ApiController
     {
+        private readonly AccountRepository _accountRepository = new AccountRepository();
+
         [HttpGet, Route("api/Accounts/{id}")]
-        public IHttpActionResult GetById(Guid id)
+        public IHttpActionResult Get(Guid id)
         {
-            using (var connection = Helpers.NewConnection())
-            {
-                return Ok(Get(id));
-            }
+            var account = _accountRepository.Get(id);
+            return Ok(account);
         }
 
         [HttpGet, Route("api/Accounts")]
-        public IHttpActionResult Get()
+        public IHttpActionResult GetAll()
         {
-            using (var connection = Helpers.NewConnection())
-            {
-                SqlCommand command = new SqlCommand($"select Id from Accounts", connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                var accounts = new List<Account>();
-                while (reader.Read())
-                {
-                    var id = Guid.Parse(reader["Id"].ToString());
-                    var account = Get(id);
-                    accounts.Add(account);
-                }
-
-                return Ok(accounts);
-            }
-        }
-
-        private Account Get(Guid id)
-        {
-            using (var connection = Helpers.NewConnection())
-            {
-                SqlCommand command = new SqlCommand($"select * from Accounts where Id = '{id}'", connection);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (!reader.Read())
-                    throw new ArgumentException();
-
-                var account = new Account(id);
-                account.Name = reader["Name"].ToString();
-                account.Number = reader["Number"].ToString();
-                account.Amount = float.Parse(reader["Amount"].ToString());
-                return account;
-            }
-        }
+            var accounts = _accountRepository.GetAll();
+            return Ok(accounts);
+        } 
 
         [HttpPost, Route("api/Accounts")]
         public IHttpActionResult Add(Account account)
         {
-            account.Save();
+            _accountRepository.Save(account);
             return Ok();
         }
 
         [HttpPut, Route("api/Accounts/{id}")]
         public IHttpActionResult Update(Guid id, Account account)
         {
-            var existing = Get(id);
-            existing.Name = account.Name;
-            existing.Save();
+            _accountRepository.Save(account, id);
             return Ok();
         }
 
         [HttpDelete, Route("api/Accounts/{id}")]
         public IHttpActionResult Delete(Guid id)
         {
-            var existing = Get(id);
-            existing.Delete();
+            _accountRepository.Delete(id);
             return Ok();
         }
     }
