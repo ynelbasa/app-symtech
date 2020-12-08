@@ -8,8 +8,6 @@ namespace refactor_this.Models
 {
     public class Account
     {
-        private bool isNew;
-
         public Guid Id { get; set; }
 
         public string Name { get; set; }
@@ -17,16 +15,5 @@ namespace refactor_this.Models
         public string Number { get; set; }
 
         public float Amount { get; set; }
-
-        public Account()
-        {
-            isNew = true;
-        }
-
-        public Account(Guid id)
-        {
-            isNew = false;
-            Id = id;
-        }
     }
 }

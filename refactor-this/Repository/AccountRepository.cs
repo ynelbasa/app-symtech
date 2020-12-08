@@ -15,14 +15,19 @@ namespace refactor_this.Repository
             {
                 SqlCommand command = new SqlCommand($"select * from Accounts where Id = '{id}'", connection);
                 connection.Open();
+
                 var reader = command.ExecuteReader();
                 if (!reader.Read())
                     throw new ArgumentException();
 
-                var account = new Account(id);
-                account.Name = reader["Name"].ToString();
-                account.Number = reader["Number"].ToString();
-                account.Amount = float.Parse(reader["Amount"].ToString());
+                var account = new Account()
+                {
+                    Id = Guid.Parse(reader["Id"].ToString()),
+                    Name = reader["Name"].ToString(),
+                    Number = reader["Number"].ToString(),
+                    Amount = float.Parse(reader["Amount"].ToString())
+                };
+
                 return account;
             }
         }
@@ -31,14 +36,22 @@ namespace refactor_this.Repository
         {
             using (var connection = Helpers.NewConnection())
             {
-                SqlCommand command = new SqlCommand($"select Id from Accounts", connection);
+                SqlCommand command = new SqlCommand($"select * from Accounts", connection);
                 connection.Open();
+
                 var reader = command.ExecuteReader();
                 var accounts = new List<Account>();
+
                 while (reader.Read())
                 {
-                    var id = Guid.Parse(reader["Id"].ToString());
-                    var account = Get(id);
+                    var account = new Account()
+                    {
+                        Id = Guid.Parse(reader["Id"].ToString()),
+                        Name = reader["Name"].ToString(),
+                        Number = reader["Number"].ToString(),
+                        Amount = float.Parse(reader["Amount"].ToString())
+                    };
+
                     accounts.Add(account);
                 }
 
