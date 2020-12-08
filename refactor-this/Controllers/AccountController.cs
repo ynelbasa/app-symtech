@@ -12,8 +12,15 @@ namespace refactor_this.Controllers
         [HttpGet, Route("api/Accounts/{id}")]
         public IHttpActionResult Get(Guid id)
         {
-            var account = _accountRepository.Get(id);
-            return Ok(account);
+            try
+            {
+                var account = _accountRepository.Get(id);
+                return Ok(account);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.ToString());
+            }
         }
 
         [HttpGet, Route("api/Accounts")]
@@ -21,7 +28,7 @@ namespace refactor_this.Controllers
         {
             var accounts = _accountRepository.GetAll();
             return Ok(accounts);
-        } 
+        }
 
         [HttpPost, Route("api/Accounts")]
         public IHttpActionResult Add(Account account)
